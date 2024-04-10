@@ -1,5 +1,6 @@
 import re
 from typing import Any, List
+import spacy
 
 from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -13,6 +14,7 @@ from src.core.config import settings
 from src.models.frequently_asked_questions import FrequentlyAskedQuestion
 from src.utils.utils import validate_role
 
+nlp = spacy.load("en_core_web_md")
 
 router = APIRouter(
     prefix='/faq',
@@ -42,6 +44,28 @@ async def get_faq_answer(
         common_keywords = set(user_question_keywords) & set(faq_keywords)
         if len(common_keywords) > max_matches:
             max_matches = len(common_keywords)
-            best_match_answer = faq.url
+            best_match_answer = f'answer = {faq.answer}, url = {faq.url}'
 
     return {"answer": best_match_answer}
+
+
+@router.post("/get_faq_advanced_answer/")
+async def get_faq_advanced_answer(
+        question,
+        db: Session = Depends(deps.get_db),
+):
+    query = select(FrequentlyAskedQuestion)
+    faqs = (db.scalars(query)).all()
+
+    user_query = nlp(question)
+    max_similarity = 0
+    most_relevant_answer = ""
+
+    for faq in faqs:
+        faq_question = nlp(faq.question)
+        similarity = user_query.similarity(faq_question)
+        if similarity > max_similarity:
+            max_similarity = similarity
+            most_relevant_answer = faq.answer
+
+    return {"answer": most_relevant_answer}
