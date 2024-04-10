@@ -4,7 +4,7 @@ import os
 from src.dto.book_dto import Book
 # from src.utils.generate_description import generate_description
 from src.utils.generate_description_async import generate_description
-from src.handlers import recommend_book, user, login, faq, announcements
+from src.handlers import recommend_book, user, login, faq, announcements, faq_handler
 
 os.environ["OPENAI_API_KEY"] = "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"
 
@@ -14,3 +14,4 @@ app.include_router(user.router)
 app.include_router(login.router)
 app.include_router(faq.router)
 app.include_router(announcements.router)
+app.include_router(faq_handler.router)
