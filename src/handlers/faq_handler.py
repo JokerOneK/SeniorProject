@@ -46,7 +46,7 @@ async def get_faq_answer(
             max_matches = len(common_keywords)
             best_match_answer = f'answer = {faq.answer}, url = {faq.url}'
 
-    return {"answer": best_match_answer}
+    return best_match_answer
 
 
 @router.post("/get_faq_advanced_answer/")
@@ -68,4 +68,4 @@ async def get_faq_advanced_answer(
             max_similarity = similarity
             most_relevant_answer = faq.answer
 
-    return {"answer": most_relevant_answer}
+    return most_relevant_answer
